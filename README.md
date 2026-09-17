@@ -1,4 +1,4 @@
-# ZeRO moves bytes, not mathematics — measured on 32 virtual GPUs
+# 🧮 ZeRO moves bytes, not mathematics — measured on 32 virtual GPUs
 
 **ERA V5 · Session 12 — Distributed Training I: Data Parallel and ZeRO**
 
@@ -20,7 +20,7 @@ Colab. Local copy: [`session12_walkthrough.html`](session12_walkthrough.html), r
 
 ---
 
-## The idea in one paragraph
+## 💡 The idea in one paragraph
 
 Training one weight costs 16 bytes: a 2-byte bf16 copy the matrix multiplications use, a 2-byte bf16
 gradient, and 12 bytes of optimizer state (a 4-byte fp32 master copy and Adam's two 4-byte moving
@@ -39,7 +39,7 @@ answer" is a **bit-exact test**.
 
 ---
 
-## Part 1 — the concepts, and why each number is what it is
+## 📚 Part 1 — the concepts, and why each number is what it is
 
 ### Why data parallelism needs a collective at all
 
@@ -102,7 +102,7 @@ and again in the backward pass, followed by the gradient reduce-scatter. That is
 Per weight: 16/N, which keeps halving as N doubles. The price is 1.5× the communication, and a GPU
 that owns no complete copy of anything.
 
-### Pros and cons of each arrangement
+### ⚖️ Pros and cons of each arrangement
 
 | | stores per weight | communication | good | bad |
 |---|---|---|---|---|
@@ -141,7 +141,7 @@ comparison. The timings printed are Python-simulator seconds and are labelled th
 
 ---
 
-## Part 2 — how the 32 virtual GPUs are built
+## 🛠️ Part 2 — how the 32 virtual GPUs are built
 
 **One process, 32 `Rank` objects.** Each rank holds its own real tensors in a dictionary: bf16
 weights, bf16 gradients, fp32 master, Adam m and v, stored in full or as its slice depending on the
@@ -191,7 +191,7 @@ ends, which is what makes the shard-cut experiment meaningful.
 
 ---
 
-## Results
+## 📊 Results
 
 ![What one rank holds](outputs/f1_memory_per_rank.png)
 ![Memory through one step](outputs/f2_step_timeline.png)
@@ -206,7 +206,7 @@ ends, which is what makes the shard-cut experiment meaningful.
 
 **Acceptance: 24/24 checks passed.**
 
-### What the run said
+### 🔍 What the run said
 
 **1. Same mathematics, different memory.** On 32 ranks over 20 steps, ZeRO-1, ZeRO-2 and ZeRO-3 finished with fp32 master weights, bf16 working weights and per-step losses **bit-identical** to plain data parallelism (largest difference: 0.0), while one rank's persistent state went from 57.887 MiB to 1.809 MiB — 32× less. The loss fell 3.00 nats, so this is a statement about a model that learned, not about untrained noise.
 
@@ -264,7 +264,7 @@ Persistent MiB on the largest rank; bytes sent per rank per step in units of P =
 
 Model arithmetic identical across arrangements: **True**. Adam work per rank falls 32× under any ZeRO stage. Simulator seconds are Python in one process — shown for completeness, not as step times.
 
-### Gates
+### ✅ Gates
 
 - ✅ A. ring reduce-scatter + all-gather == all-reduce, bit-exact
 - ✅ A. reduce-scatter alone leaves each rank its exact slice
@@ -291,7 +291,7 @@ Model arithmetic identical across arrangements: **True**. Adam work per rank fal
 - ✅ F. ZeRO-1 floor exceeds the card; 20B boundary
 - ✅ 16. GPU-measured persistent within 1% of counted
 
-### Projected to V5: 30B parameters (GiB per GPU, training state only)
+### 🔭 Projected to V5: 30B parameters (GiB per GPU, training state only)
 
 | | N=8 | N=16 | N=32 | N=64 |
 |---|---|---|---|---|
@@ -305,7 +305,7 @@ Bold = under one 80 GB card (74.5 GiB); brackets = the lesson page. ZeRO-1's rep
 
 ---
 
-## Limits, stated plainly
+## ⚠️ Limits, stated plainly
 
 - **No step times.** Bytes are exact; seconds are not modelled. Converting bytes to seconds needs a
   bandwidth model (NVLink 450 GB/s, InfiniBand 50 GB/s) and a statement of how much transfer overlaps
@@ -320,7 +320,7 @@ Bold = under one 80 GB card (74.5 GiB); brackets = the lesson page. ZeRO-1's rep
 - **Flat shards are unpadded** (sizes differ by at most one element). DeepSpeed pads to equal sizes.
 - **The T4 check uses fp16** because a T4 has no native bf16. The bytes per element are the same.
 
-## Files
+## 📁 Files
 
 ```
 notebook_src.py                  source of truth (percent format)

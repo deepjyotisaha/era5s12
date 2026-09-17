@@ -89,6 +89,12 @@ def inline(s):
     return s
 
 
+def strip_emoji(title):
+    """README headings carry a leading emoji; the page's own type system does the signposting,
+    so headings on the page drop it."""
+    return re.sub(r"^[^\w\"'(`]+\s*", "", title.strip())
+
+
 def _starts_block(ln):
     return ln.startswith(("```", "|", "#", ">")) or bool(LIST.match(ln))
 
@@ -129,7 +135,7 @@ def md_to_html(md):
         m = re.match(r"^(#{1,6})\s+(.*)$", ln)
         if m:
             lvl = min(len(m.group(1)) + 1, 6)
-            out.append(f"<h{lvl}>{inline(m.group(2))}</h{lvl}>")
+            out.append(f"<h{lvl}>{inline(strip_emoji(m.group(2)))}</h{lvl}>")
             i += 1
             continue
         if ln.startswith(">"):
@@ -190,10 +196,12 @@ def readme_parts():
     chapters = []
     for block in re.split(r"^## ", head + "\n" + tail, flags=re.M)[1:]:
         title, _, body = block.partition("\n")
-        if title.strip().startswith(SKIP_CHAPTERS):
+        title = strip_emoji(title)
+        if title.startswith(SKIP_CHAPTERS):
             continue
-        chapters.append((title.strip(), body))
-    said = measured.split("### What the run said", 1)[1].split("\n### ", 1)[0]
+        chapters.append((title, body))
+    said = re.split(r"^###\s+\W*What the run said\s*$", measured, maxsplit=1, flags=re.M)[1]
+    said = said.split("\n### ", 1)[0]
     return chapters, said
 
 

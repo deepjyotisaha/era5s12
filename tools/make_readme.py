@@ -44,7 +44,7 @@ def render(R):
     A("")
 
     # ------------------------------------------------------------------ headlines
-    A("### What the run said")
+    A("### 🔍 What the run said")
     A("")
     C = R["gates"]["C_identical"]
     all_same = all(C[s]["identical"] for s in STAGES[1:])
@@ -224,7 +224,7 @@ def render(R):
       "for completeness, not as step times.")
     A("")
 
-    A("### Gates")
+    A("### ✅ Gates")
     A("")
     for c in acc["checks"]:
         mark = "✅" if c["result"] else ("⏭️ skipped" if c["result"] is None else "❌")
@@ -232,7 +232,7 @@ def render(R):
     A("")
 
     P = R["projection"]
-    A("### Projected to V5: 30B parameters (GiB per GPU, training state only)")
+    A("### 🔭 Projected to V5: 30B parameters (GiB per GPU, training state only)")
     A("")
     A("| | N=8 | N=16 | N=32 | N=64 |")
     A("|---|---|---|---|---|")
